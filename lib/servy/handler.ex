@@ -1,6 +1,9 @@
 defmodule Servy.Handler do
+  @moduledoc "Handles HTTP requests."
+  @pages_path Path.expand("../../pages", __DIR__)
   require Logger
 
+  @doc "Transform the request into a response."
   def handle(request) do
     request
     |> parse
@@ -13,6 +16,7 @@ defmodule Servy.Handler do
     |> format_response
   end
 
+  @doc "Logs 404 requests."
   def track(%{status: 404, path: path} = conv) do
     Logger.warning("Warning: #{path} is on the loose!")
     IO.puts("Warning: #{path} is on the loose!")
@@ -64,7 +68,7 @@ defmodule Servy.Handler do
   end
 
   def route(%{method: "GET", path: "/pages/" <> page_name} = conv) do
-    Path.expand("../../pages", __DIR__)
+    @pages_path
     |> Path.join("#{page_name}.html")
     |> File.read()
     |> handle_file(conv)
@@ -72,7 +76,7 @@ defmodule Servy.Handler do
 
   def route(%{method: "GET", path: "/bears/new"} = conv) do
     file =
-      Path.expand("../../pages", __DIR__)
+      @pages_path
       |> Path.join("form.html")
 
     case File.read(file) do
@@ -98,7 +102,7 @@ defmodule Servy.Handler do
   end
 
   def route(%{method: "GET", path: "/about"} = conv) do
-    Path.expand("../../pages", __DIR__)
+    @pages_path
     |> Path.join("about.html")
     |> File.read()
     |> handle_file(conv)
@@ -122,7 +126,7 @@ defmodule Servy.Handler do
 
   # def route(%{method: "GET", path: "/about"} = conv) do
   #   file =
-  #     Path.expand("../../pages", __DIR__)
+  #     @pages_path
   #     |> Path.join("about.html")
 
   #   case File.read(file) do
