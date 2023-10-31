@@ -20,6 +20,7 @@ defmodule Servy.Handler do
     |> log
     |> route
     |> track
+    |> put_content_length
     |> format_response
   end
 
@@ -114,10 +115,23 @@ defmodule Servy.Handler do
   def format_response(%Conv{} = conv) do
     """
     HTTP/1.1 #{Conv.full_status(conv)}\r
-    Content-Type: #{conv.resp_content_type}\r
-    Content-Length: #{String.length(conv.resp_body)}\r
+    #{format_response_headers(conv)}\r
     \r
     #{conv.resp_body}
     """
+  end
+
+  defp put_content_length(conv) do
+    %{
+      conv
+      | resp_headers: %{conv.resp_headers | "Content-Length" => String.length(conv.resp_body)}
+    }
+  end
+
+  defp format_response_headers(conv) do
+    conv.resp_headers
+    |> Enum.sort(:desc)
+    |> Enum.map(&"#{elem(&1, 0)}: #{elem(&1, 1)}")
+    |> Enum.join("\r\n")
   end
 end
