@@ -24,6 +24,18 @@ defmodule Servy.Handler do
     |> format_response
   end
 
+  def route(%Conv{method: "GET", path: "/faq"} = conv) do
+    html =
+      @pages_path
+      |> Path.join("faq.md")
+      |> File.read()
+      |> elem(1)
+      |> IO.inspect()
+      |> Earmark.as_html!()
+
+    %{conv | status: 200, resp_body: html}
+  end
+
   def route(%Conv{method: "GET", path: "/wildthings"} = conv) do
     %{conv | status: 200, resp_body: "Bears, Lions, Tigers"}
   end

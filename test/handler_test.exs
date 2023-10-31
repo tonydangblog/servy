@@ -247,6 +247,19 @@ defmodule HandlerTest do
            """
   end
 
+  test "GET /faq" do
+    request = """
+    GET /faq HTTP/1.1\r
+    Host: example.com\r
+    User-Agent: ExampleBrowser/1.0\r
+    Accept: */*\r
+    \r
+    """
+
+    response = handle(request)
+    assert String.contains?(response, ["Frequently Asked Questions"])
+  end
+
   defp remove_whitespace(text) do
     String.replace(text, ~r{\s}, "")
   end
