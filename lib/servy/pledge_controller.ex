@@ -1,4 +1,6 @@
 defmodule Servy.PledgeController do
+  import Servy.View, only: [render: 3]
+
   def create(conv, %{"name" => name, "amount" => amount}) do
     # Sends the pledge to the external service and caches it
     Servy.PledgeServer.create_pledge(name, String.to_integer(amount))
@@ -10,6 +12,10 @@ defmodule Servy.PledgeController do
     # Gets the recent pledges from the cache
     pledges = Servy.PledgeServer.recent_pledges()
 
-    %{conv | status: 200, resp_body: inspect(pledges)}
+    render(conv, "recent_pledges.heex", pledges: pledges)
+  end
+
+  def new(conv) do
+    render(conv, "new_pledge.heex", head: 1)
   end
 end
