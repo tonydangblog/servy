@@ -1,0 +1,16 @@
+<h1>Sensors</h1>
+
+<h2>Snapshots</h2>
+<ul>
+  <%= for snap <- snapshots do %>
+    <li><%= snap %></li>
+  <% end %>
+</ul>
+
+<h2>Bigfoot Location</h2>
+<p>
+   Lat <%= location.lat %>
+</p>
+<p>
+   Long <%= location.lng %>
+</p>
