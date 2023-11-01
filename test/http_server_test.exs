@@ -5,23 +5,16 @@ defmodule HttpServerTest do
 
   test "test request to server" do
     # GIVEN
-    parent = self()
     spawn(Servy.HttpServer, :start, [@test_port])
+    url = "http://localhost:#{@test_port}/wildthings"
 
-    # WHEN
-    num_concurrent_requests = 5
-
-    for _ <- 1..num_concurrent_requests do
-      spawn(fn -> send(parent, HTTPoison.get("http://localhost:#{@test_port}/wildthings")) end)
-    end
-
-    # THEN
-    for _ <- 1..num_concurrent_requests do
-      receive do
-        {:ok, res} ->
-          assert res.status_code == 200
-          assert res.body == "Bears, Lions, Tigers"
-      end
-    end
+    # WHEN...THEN
+    1..5
+    |> Enum.map(fn _ -> Task.async(fn -> HTTPoison.get(url) end) end)
+    |> Enum.map(&Task.await/1)
+    |> Enum.each(fn {:ok, res} ->
+      assert res.status_code == 200
+      assert res.body == "Bears, Lions, Tigers"
+    end)
   end
 end
