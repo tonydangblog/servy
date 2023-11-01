@@ -1,44 +1,27 @@
 defmodule HttpServerTest do
   use ExUnit.Case
 
+  @test_port 4321
+
   test "test request to server" do
-    spawn(fn -> Servy.HttpServer.start(4321) end)
+    # GIVEN
+    parent = self()
+    spawn(Servy.HttpServer, :start, [@test_port])
 
-    request = """
-    GET /bears HTTP/1.1\r
-    Host: example.com\r
-    User-Agent: ExampleBrowser/1.0\r
-    Accept: */*\r
-    \r
-    """
+    # WHEN
+    num_concurrent_requests = 5
 
-    response = Servy.HttpClient.send_request(request)
+    for _ <- 1..num_concurrent_requests do
+      spawn(fn -> send(parent, HTTPoison.get("http://localhost:#{@test_port}/wildthings")) end)
+    end
 
-    expected_response = """
-    HTTP/1.1 200 OK\r
-    Content-Type: text/html\r
-    Content-Length: 354\r
-    \r
-    <h1>All The Bears!</h1>
-
-    <ul>
-      <li>Brutus - Grizzly</li>
-      <li>Iceman - Polar</li>
-      <li>Kenai - Grizzly</li>
-      <li>Paddington - Brown</li>
-      <li>Roscoe - Panda</li>
-      <li>Rosie - Black</li>
-      <li>Scarface - Grizzly</li>
-      <li>Smokey - Black</li>
-      <li>Snow - Polar</li>
-      <li>Teddy - Brown</li>
-    </ul>
-    """
-
-    assert remove_whitespace(response) == remove_whitespace(expected_response)
-  end
-
-  defp remove_whitespace(text) do
-    String.replace(text, ~r{\s}, "")
+    # THEN
+    for _ <- 1..num_concurrent_requests do
+      receive do
+        {:ok, res} ->
+          assert res.status_code == 200
+          assert res.body == "Bears, Lions, Tigers"
+      end
+    end
   end
 end
