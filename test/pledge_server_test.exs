@@ -5,7 +5,7 @@ defmodule PledgeServerTest do
 
   test "caches only the 3 most recent pledges" do
     # GIVEN server and 5 pledges
-    PledgeServer.start()
+    PledgeServer.start_link([])
     PledgeServer.create_pledge("larry", 10)
     PledgeServer.create_pledge("moe", 20)
     PledgeServer.create_pledge("curly", 30)
