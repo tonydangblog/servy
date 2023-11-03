@@ -10,7 +10,7 @@ defmodule Servy.Handler do
   import Servy.Plugins, only: [rewrite_path: 1, log: 1, track: 1]
   import Servy.Parser, only: [parse: 1]
   import Servy.FileHandler, only: [handle_file: 2]
-  import Servy.View, only: [render: 3]
+  # import Servy.View, only: [render: 3]
 
   @doc "Transform the request into a response."
   def handle(request) do
